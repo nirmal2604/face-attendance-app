@@ -50,8 +50,29 @@ def video_callback_func(frame):
     return av.VideoFrame.from_ndarray(reg_img, format='bgr24')
 
 st.markdown("### 📸 Capture Face")
-webrtc_streamer(key='registration', video_frame_callback=video_callback_func)
-
+webrtc_streamer(
+    key="realtime_prediction",
+    video_frame_callback=video_frame_callback,
+    rtc_configuration={
+        "iceServers": [
+            {
+                "urls": ["stun:bn-turn2.xirsys.com"]
+            },
+            {
+                "username": "tpbmCGWfojEpDlj9-d1biQlZ42CqdEtgmtIN_SK1uSdIe5Wdp47vdNCBckRoQidhAAAAAGiA71JOaXJtYWw=",
+                "credential": "f92e183c-67cf-11f0-b781-0242ac140004",
+                "urls": [
+                    "turn:bn-turn2.xirsys.com:80?transport=udp",
+                    "turn:bn-turn2.xirsys.com:3478?transport=udp",
+                    "turn:bn-turn2.xirsys.com:80?transport=tcp",
+                    "turn:bn-turn2.xirsys.com:3478?transport=tcp",
+                    "turns:bn-turn2.xirsys.com:443?transport=tcp",
+                    "turns:bn-turn2.xirsys.com:5349?transport=tcp"
+                ]
+            }
+        ]
+    }
+)
 if st.button('✅ Submit Registration'):
     return_val = registration_form.save_data_in_redis_db(person_name, role)
     if return_val == True:
