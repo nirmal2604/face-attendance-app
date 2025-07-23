@@ -69,11 +69,20 @@ webrtc_streamer(
     video_frame_callback=video_frame_callback,
     rtc_configuration={
         "iceServers": [
-            {"urls": ["stun:stun.l.google.com:19302"]},  # Fallback STUN
             {
-                "urls": ["turn:numb.viagenie.ca"],
-                "username": "webrtc@live.com",
-                "credential": "muazkh"
+                "urls": ["stun:bn-turn2.xirsys.com"]
+            },
+            {
+                "username": "tpbmCGWfojEpDlj9-d1biQlZ42CqdEtgmtIN_SK1uSdIe5Wdp47vdNCBckRoQidhAAAAAGiA71JOaXJtYWw=",
+                "credential": "f92e183c-67cf-11f0-b781-0242ac140004",
+                "urls": [
+                    "turn:bn-turn2.xirsys.com:80?transport=udp",
+                    "turn:bn-turn2.xirsys.com:3478?transport=udp",
+                    "turn:bn-turn2.xirsys.com:80?transport=tcp",
+                    "turn:bn-turn2.xirsys.com:3478?transport=tcp",
+                    "turns:bn-turn2.xirsys.com:443?transport=tcp",
+                    "turns:bn-turn2.xirsys.com:5349?transport=tcp"
+                ]
             }
         ]
     }
