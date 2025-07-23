@@ -6,9 +6,26 @@ import face_rec
 
 st.set_page_config(page_title='Real-Time Predictions', layout='wide')
 
+# Define video_frame_callback before using it
+waitTime = 3
+setTime = time.time()
+realtimepred = face_rec.RealTimePred()
+
+def video_frame_callback(frame):
+    global setTime
+    img = frame.to_ndarray(format="bgr24")
+    pred_img = realtimepred.face_prediction(img, redis_face_db,
+                                            'facial_features', ['Name', 'Role'], thresh=0.4)
+    timenow = time.time()
+    if timenow - setTime >= waitTime:
+        realtimepred.saveLogs_redis()
+        setTime = time.time()
+        print("Saved logs to Redis DB")
+    return av.VideoFrame.from_ndarray(pred_img, format="bgr24")
+
+
 st.markdown("""
     <style>
-        
         h1, h2, h3 {
             font-family: 'Segoe UI', sans-serif;
             color: #000000;
@@ -43,22 +60,21 @@ with st.spinner('Retrieving Data from Redis DB...'):
     with st.expander("🔍 View Registered Data"):
         st.dataframe(redis_face_db)
 
-waitTime = 3
-setTime = time.time()
-realtimepred = face_rec.RealTimePred()
-
-def video_frame_callback(frame):
-    global setTime
-    img = frame.to_ndarray(format="bgr24")
-    pred_img = realtimepred.face_prediction(img, redis_face_db,
-                                            'facial_features', ['Name', 'Role'], thresh=0.4)
-    timenow = time.time()
-    if timenow - setTime >= waitTime:
-        realtimepred.saveLogs_redis()
-        setTime = time.time()
-        print("Saved logs to Redis DB")
-    return av.VideoFrame.from_ndarray(pred_img, format="bgr24")
-
 st.markdown("---")
 st.subheader("📡 Webcam Stream")
-webrtc_streamer(key="realtimePrediction", video_frame_callback=video_frame_callback)
+# Single webrtc_streamer with configuration and callback
+
+webrtc_streamer(
+    key="realtime_prediction",
+    video_frame_callback=video_frame_callback,
+    rtc_configuration={
+        "iceServers": [
+            {"urls": ["stun:stun.l.google.com:19302"]},  # Fallback STUN
+            {
+                "urls": ["turn:numb.viagenie.ca"],
+                "username": "webrtc@live.com",
+                "credential": "muazkh"
+            }
+        ]
+    }
+)
